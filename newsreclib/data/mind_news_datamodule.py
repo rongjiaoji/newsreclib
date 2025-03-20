@@ -138,6 +138,8 @@ class MINDNewsDataModule(LightningDataModule):
         num_workers: int,
         pin_memory: bool,
         drop_last: bool,
+        custom_embedding_path: Optional[str] = None,  # Add this line
+
     ) -> None:
         super().__init__()
 
@@ -148,6 +150,8 @@ class MINDNewsDataModule(LightningDataModule):
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
+
+        self.news_id_to_index = self._load_news_ids()
 
         if self.hparams.use_plm:
             assert isinstance(self.hparams.tokenizer_name, str)
@@ -161,6 +165,22 @@ class MINDNewsDataModule(LightningDataModule):
                 use_fast=self.hparams.tokenizer_use_fast,
                 model_max=self.hparams.tokenizer_max_len,
             )
+
+        if self.hparams.custom_embedding_path:
+            self.custom_embeddings = torch.load(self.hparams.custom_embedding_path)
+        else:
+            self.custom_embeddings = None
+
+
+    def _load_news_ids(self):
+        news_ids = {}
+        news_file_path = f'{self.hparams.data_dir}/{self.hparams.dataset_size}/news.tsv'
+
+        with open(news_file_path, 'r') as f:
+            for line in f:
+                news_id = line.split('\t')[0]
+                news_ids[news_id] = len(news_ids)
+        return news_ids
 
     def prepare_data(self):
         """Download data if needed.

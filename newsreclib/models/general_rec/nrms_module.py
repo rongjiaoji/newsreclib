@@ -14,6 +14,7 @@ from newsreclib.models.components.encoders.news.news import NewsEncoder
 from newsreclib.models.components.encoders.news.text import PLM, MHSAAddAtt
 from newsreclib.models.components.encoders.user.nrms import UserEncoder
 from newsreclib.models.components.layers.click_predictor import DotProduct
+from newsreclib.models.components.encoders.news.custom_news_encoder import CustomNewsEncoder
 
 
 class NRMSModule(AbstractRecommneder):
@@ -97,12 +98,16 @@ class NRMSModule(AbstractRecommneder):
         recs_fpath: Optional[str],
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
+        custom_embedding_path: Optional[str] = None,
     ) -> None:
         super().__init__(
             outputs=outputs,
             optimizer=optimizer,
             scheduler=scheduler,
         )
+        
+        assert custom_embedding_path is not None, "Custom embedding path must be provided."
+        self.news_encoder = CustomNewsEncoder(custom_embedding_path)
 
         self.num_categ_classes = self.hparams.num_categ_classes + 1
         self.num_sent_classes = self.hparams.num_sent_classes + 1

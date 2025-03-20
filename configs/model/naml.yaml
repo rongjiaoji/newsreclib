@@ -11,6 +11,7 @@ temperature: None
 dataset_attributes: ${data.dataset_attributes}
 attributes2encode: ["title", "abstract", "category"]
 use_plm: False
+pretrained_embeddings_path: "data/custom_embeddings.pt"
 
 # text encoder
 pretrained_embeddings_path: null

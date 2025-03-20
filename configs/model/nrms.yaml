@@ -1,4 +1,6 @@
 _target_: newsreclib.models.general_rec.nrms_module.NRMSModule
+#_target_: newsreclib.models.components.encoders.news.CustomEmbeddingNewsEncoder
+custom_embedding_path: "data/custom_embeddings.pt"
 
 # training strategy
 dual_loss_training: False
