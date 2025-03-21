@@ -237,6 +237,10 @@ class NRMSModule(AbstractRecommneder):
         hist_news_vector = self.news_encoder(batch["x_hist"])
         hist_news_vector_agg, mask_hist = to_dense_batch(hist_news_vector, batch["batch_hist"])
 
+        # Explicit runtime check clearly:
+        assert hist_news_vector is not None and cand_news_vector is not None, "Embeddings are None!"
+        assert hist_news_vector.shape[-1] == cand_news_vector.shape[-1] == 300, "Embedding dimension mismatch!"
+
         # encode candidates
         cand_news_vector = self.news_encoder(batch["x_cand"])
         cand_news_vector_agg, _ = to_dense_batch(cand_news_vector, batch["batch_cand"])
