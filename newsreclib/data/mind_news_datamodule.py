@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Optional
+import torch
 
 import torch.nn as nn
 from lightning import LightningDataModule
@@ -145,7 +146,7 @@ class MINDNewsDataModule(LightningDataModule):
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(logger=False)
-        
+
         self.custom_embeddings = None
         if custom_embedding_path:
             self.custom_embeddings = torch.load(custom_embedding_path)
