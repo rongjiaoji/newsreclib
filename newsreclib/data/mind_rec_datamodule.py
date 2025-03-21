@@ -143,24 +143,25 @@ class MINDRecDataModule(LightningDataModule):
 
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
-        self.save_hyperparameters(logger=False)
+        self.save_hyperparameters(ignore=['sentiment_annotator'], logger=False)
         
+        self.custom_embeddings = torch.load(custom_embedding_path) if custom_embedding_path else None
+        self.news_id_to_index = self._load_news_ids()
+        print(self.hparams.custom_embedding_path)
+
+        assert set(self.news_id_to_index.keys()).issubset(set(self.custom_embeddings.keys())), \
+    "Embedding keys mismatch explicitly!"
+
+
         if use_pretrained_embeddings:
             self.load_pretrained_embeddings()
         else:
             print("Skipping pretrained embeddings loading explicitly.")
         
-        self.custom_embeddings = None
-        if custom_embedding_path:
-            self.custom_embeddings = torch.load(custom_embedding_path)
-
-        print(self.hparams.custom_embedding_path)
-
+    
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
-
-        self.news_id_to_index = self._load_news_ids()
 
         if self.hparams.use_plm:
             assert isinstance(self.hparams.tokenizer_name, str)
@@ -174,7 +175,15 @@ class MINDRecDataModule(LightningDataModule):
                 use_fast=self.hparams.tokenizer_use_fast,
                 model_max_length=self.hparams.tokenizer_max_len,
             )
-
+    def _load_news_ids(self):
+        news_ids = {}
+        news_path = os.path.join(self.hparams.data_dir, "MINDsmall_train", "news.tsv")
+        with open(news_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                news_id = line.split('\t')[0]
+                news_ids[news_id] = len(news_ids)
+        return news_ids
+    
     def prepare_data(self):
         """Download data if needed.
 
