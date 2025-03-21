@@ -17,6 +17,7 @@ data_dir: ${paths.data_dir}
 word_embeddings_dirname: glove
 word_embeddings_fpath: ${paths.data_dir}/glove/glove.840B.300d.txt
 entity_embeddings_filename: "entity_embedding.vec"
+custom_embedding_path: ${paths.data_dir}/custom_embeddings.pt
 
 # Data preprocessing
 dataset_attributes:

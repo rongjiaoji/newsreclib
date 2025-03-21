@@ -135,16 +135,31 @@ class MINDRecDataModule(LightningDataModule):
         num_workers: int,
         pin_memory: bool,
         drop_last: bool,
+        custom_embedding_path: Optional[str] = None,
+        use_pretrained_embeddings: bool = True,
     ) -> None:
         super().__init__()
 
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(logger=False)
+        
+        if use_pretrained_embeddings:
+            self.load_pretrained_embeddings()
+        else:
+            print("Skipping pretrained embeddings loading explicitly.")
+        
+        self.custom_embeddings = None
+        if custom_embedding_path:
+            self.custom_embeddings = torch.load(custom_embedding_path)
+
+        print(self.hparams.custom_embedding_path)
 
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
+
+        self.news_id_to_index = self._load_news_ids()
 
         if self.hparams.use_plm:
             assert isinstance(self.hparams.tokenizer_name, str)
@@ -308,6 +323,22 @@ class MINDRecDataModule(LightningDataModule):
                 behaviors=testset.behaviors,
                 max_history_len=self.hparams.max_history_len,
             )
+        
+        super().setup(stage)
+
+        # Explicitly take only first 100 samples
+        self.trainset.behaviors = self.trainset.behaviors.head(100)
+        self.valset.behaviors = self.valset.behaviors.head(100)
+        self.testset.behaviors = self.testset.behaviors.head(100)
+
+        print("Explicitly running with first 100 samples only.")
+
+        if self.custom_embeddings:
+            # Validate embeddings explicitly match news_ids
+            news_ids = self.trainset.news["news_id"].tolist()
+            assert set(news_ids).issubset(set(self.custom_embeddings.keys())), \
+                "Embedding keys mismatch with news IDs."
+
 
     def train_dataloader(self):
         return DataLoader(

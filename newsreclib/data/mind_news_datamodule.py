@@ -139,13 +139,16 @@ class MINDNewsDataModule(LightningDataModule):
         pin_memory: bool,
         drop_last: bool,
         custom_embedding_path: Optional[str] = None,  # Add this line
-
     ) -> None:
         super().__init__()
 
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(logger=False)
+        
+        self.custom_embeddings = None
+        if custom_embedding_path:
+            self.custom_embeddings = torch.load(custom_embedding_path)
 
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
@@ -166,10 +169,6 @@ class MINDNewsDataModule(LightningDataModule):
                 model_max=self.hparams.tokenizer_max_len,
             )
 
-        if self.hparams.custom_embedding_path:
-            self.custom_embeddings = torch.load(self.hparams.custom_embedding_path)
-        else:
-            self.custom_embeddings = None
 
 
     def _load_news_ids(self):
@@ -330,6 +329,14 @@ class MINDNewsDataModule(LightningDataModule):
                 behaviors=testset.behaviors,
                 aspect=self.hparams.aspect,
             )
+
+        super().setup(stage)
+
+        if self.custom_embeddings:
+            # Validate embeddings explicitly match news_ids
+            news_ids = self.trainset.news["news_id"].tolist()
+            assert set(news_ids).issubset(set(self.custom_embeddings.keys())), \
+                "Embedding keys mismatch with news IDs."
 
     def train_dataloader(self):
         return DataLoader(

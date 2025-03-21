@@ -17,6 +17,8 @@ data_dir: ${paths.data_dir}
 word_embeddings_dirname: glove
 word_embeddings_fpath: ${paths.data_dir}/glove/glove.840B.300d.txt
 entity_embeddings_filename: "entity_embedding.vec"
+custom_embedding_path: ${paths.data_dir}/custom_embeddings.pt
+
 
 # Data preprocessing
 dataset_attributes:
@@ -41,6 +43,10 @@ id2index_filenames:
 
 use_plm: False
 use_pretrained_categ_embeddings: True
+#add
+use_pretrained_embeddings: False
+
+
 word_embed_dim: 300
 categ_embed_dim: 300
 entity_embed_dim: 100
