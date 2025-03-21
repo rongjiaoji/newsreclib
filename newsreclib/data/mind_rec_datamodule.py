@@ -254,8 +254,7 @@ class MINDRecDataModule(LightningDataModule):
         This method is called by lightning with both `trainer.fit()` and `trainer.test()`, so be
         careful not to execute things like random split twice!
         """
-        sentiment_annotator = self.hparams.get('sentiment_annotator', None)
-
+        
         # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
             trainset = MINDDataFrame(
@@ -277,7 +276,6 @@ class MINDRecDataModule(LightningDataModule):
                 entity_conf_threshold=self.hparams.entity_conf_threshold,
                 sentiment_annotator=self.sentiment_annotator, #hparams.sentiment_annotator,
                 valid_time_split=self.hparams.valid_time_split,
-                sentiment_annotator=sentiment_annotator,  # explicit fix here
                 train=True,
                 validation=False,
                 download=False,
