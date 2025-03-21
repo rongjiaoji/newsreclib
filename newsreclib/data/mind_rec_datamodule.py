@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional
 import torch
 import os
+import hydra
+
 
 import torch.nn as nn
 from lightning import LightningDataModule
@@ -254,7 +256,7 @@ class MINDRecDataModule(LightningDataModule):
         This method is called by lightning with both `trainer.fit()` and `trainer.test()`, so be
         careful not to execute things like random split twice!
         """
-        
+
         # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
             trainset = MINDDataFrame(
