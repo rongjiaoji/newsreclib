@@ -123,7 +123,7 @@ class MINDRecDataModule(LightningDataModule):
         entity_embed_dim: int,
         entity_freq_threshold: int,
         entity_conf_threshold: float,
-        sentiment_annotator: nn.Module,
+        #sentiment_annotator: nn.Module,
         valid_time_split: str,
         max_title_len: int,
         max_abstract_len: int,
@@ -138,6 +138,7 @@ class MINDRecDataModule(LightningDataModule):
         pin_memory: bool,
         drop_last: bool,
         custom_embedding_path: Optional[str] = None,
+        sentiment_annotator=None,
         use_pretrained_embeddings: bool = True,
     ) -> None:
         super().__init__()
@@ -145,6 +146,11 @@ class MINDRecDataModule(LightningDataModule):
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(ignore=['sentiment_annotator'], logger=False)
+
+        if sentiment_annotator is not None:
+            self.sentiment_annotator = hydra.utils.instantiate(sentiment_annotator)
+        else:
+            self.sentiment_annotator = None
         
         self.custom_embeddings = torch.load(custom_embedding_path) if custom_embedding_path else None
         self.news_id_to_index = self._load_news_ids()
@@ -191,9 +197,6 @@ class MINDRecDataModule(LightningDataModule):
 
         Do not use it to assign state (self.x = y).
         """
-
-        sentiment_annotator = self.hparams.get('sentiment_annotator', None)
-
         # download train set
         MINDDataFrame(
             dataset_size=self.hparams.dataset_size,
@@ -212,9 +215,9 @@ class MINDRecDataModule(LightningDataModule):
             entity_embed_dim=self.hparams.entity_embed_dim,
             entity_freq_threshold=self.hparams.entity_freq_threshold,
             entity_conf_threshold=self.hparams.entity_conf_threshold,
-            sentiment_annotator=self.hparams.sentiment_annotator,
+            #sentiment_annotator=self.hparams.sentiment_annotator,
             valid_time_split=self.hparams.valid_time_split,
-            sentiment_annotator=sentiment_annotator,  # explicit fix here
+            sentiment_annotator=self.sentiment_annotator,  # explicit fix here
             train=True,
             validation=False,
             download=True,
@@ -238,7 +241,7 @@ class MINDRecDataModule(LightningDataModule):
             entity_embed_dim=self.hparams.entity_embed_dim,
             entity_freq_threshold=self.hparams.entity_freq_threshold,
             entity_conf_threshold=self.hparams.entity_conf_threshold,
-            sentiment_annotator=self.hparams.sentiment_annotator,
+            sentiment_annotator=self.sentiment_annotator, ## self.sentiment_annotator
             valid_time_split=self.hparams.valid_time_split,
             train=False,
             validation=False,
@@ -272,7 +275,7 @@ class MINDRecDataModule(LightningDataModule):
                 entity_embed_dim=self.hparams.entity_embed_dim,
                 entity_freq_threshold=self.hparams.entity_freq_threshold,
                 entity_conf_threshold=self.hparams.entity_conf_threshold,
-                sentiment_annotator=self.hparams.sentiment_annotator,
+                sentiment_annotator=self.sentiment_annotator, #hparams.sentiment_annotator,
                 valid_time_split=self.hparams.valid_time_split,
                 sentiment_annotator=sentiment_annotator,  # explicit fix here
                 train=True,
@@ -296,7 +299,7 @@ class MINDRecDataModule(LightningDataModule):
                 entity_embed_dim=self.hparams.entity_embed_dim,
                 entity_freq_threshold=self.hparams.entity_freq_threshold,
                 entity_conf_threshold=self.hparams.entity_conf_threshold,
-                sentiment_annotator=self.hparams.sentiment_annotator,
+                sentiment_annotator=self.sentiment_annotator, #self.hparams.sentiment_annotator,
                 valid_time_split=self.hparams.valid_time_split,
                 train=True,
                 validation=True,
@@ -319,7 +322,7 @@ class MINDRecDataModule(LightningDataModule):
                 entity_embed_dim=self.hparams.entity_embed_dim,
                 entity_freq_threshold=self.hparams.entity_freq_threshold,
                 entity_conf_threshold=self.hparams.entity_conf_threshold,
-                sentiment_annotator=self.hparams.sentiment_annotator,
+                sentiment_annotator=self.sentiment_annotator, #self.hparams.sentiment_annotator,
                 valid_time_split=self.hparams.valid_time_split,
                 train=False,
                 validation=False,
