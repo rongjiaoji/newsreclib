@@ -179,7 +179,7 @@ class MINDRecDataModule(LightningDataModule):
 
     def _load_news_ids(self):
         news_ids = {}
-        news_path = os.path.join(self.hparams.data_dir, "MINDsmall_train", "news.tsv")
+        news_path = os.path.join(self.hparams.data_dir, "news.tsv")
         with open(news_path, 'r', encoding='utf-8') as f:
             for line in f:
                 news_id = line.split('\t')[0]
