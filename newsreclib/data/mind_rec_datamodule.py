@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 import torch
 import os
 import hydra
-
+from omegaconf import OmegaConf
 
 import torch.nn as nn
 from lightning import LightningDataModule
@@ -150,7 +150,7 @@ class MINDRecDataModule(LightningDataModule):
         self.save_hyperparameters(ignore=['sentiment_annotator'], logger=False)
 
         if sentiment_annotator is not None:
-            self.sentiment_annotator = hydra.utils.instantiate(sentiment_annotator)
+            self.sentiment_annotator = hydra.utils.instantiate(OmegaConf.create(sentiment_annotator))
         else:
             self.sentiment_annotator = None
         
