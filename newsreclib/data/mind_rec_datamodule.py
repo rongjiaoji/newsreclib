@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional
 import torch
+import os
 
 import torch.nn as nn
 from lightning import LightningDataModule
@@ -175,6 +176,7 @@ class MINDRecDataModule(LightningDataModule):
                 use_fast=self.hparams.tokenizer_use_fast,
                 model_max_length=self.hparams.tokenizer_max_len,
             )
+
     def _load_news_ids(self):
         news_ids = {}
         news_path = os.path.join(self.hparams.data_dir, "MINDsmall_train", "news.tsv")
