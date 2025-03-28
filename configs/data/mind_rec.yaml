@@ -53,7 +53,9 @@ entity_embed_dim: 100
 entity_freq_threshold: 2
 entity_conf_threshold: 0.5
 
-sentiment_annotator: null
+sentiment_annotator:
+  _target_: newsreclib.annotators.BERTSentimentAnnotator
+  model_name_or_path: "bert-base-uncased"
 
 valid_time_split: "2019-11-14 00:00:00" # interactions with timestamp before this data will be used for training
 
