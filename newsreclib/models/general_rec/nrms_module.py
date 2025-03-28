@@ -152,6 +152,8 @@ class NRMSModule(AbstractRecommneder):
                 dropout_probability=self.hparams.dropout_probability,
             )
 
+'''
+
         # initialize news encoder
         self.news_encoder = NewsEncoder(
             dataset_attributes=self.hparams.dataset_attributes,
@@ -166,6 +168,7 @@ class NRMSModule(AbstractRecommneder):
             query_dim=None,
             output_dim=None,
         )
+'''
 
         # initialize user encoder, if needed
         if not self.hparams.late_fusion:
