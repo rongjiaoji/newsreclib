@@ -93,11 +93,11 @@ class MINDDataFrame(Dataset):
         entity_embed_dim: int,
         entity_freq_threshold: int,
         entity_conf_threshold: float,
-        sentiment_annotator: Optional[nn.Module] = None,  # Change this line
         valid_time_split: str,
         train: bool,
         validation: bool,
         download: bool,
+        sentiment_annotator: Optional[nn.Module] = None,  # Move this to the end
     ) -> None:
         super().__init__()
 
