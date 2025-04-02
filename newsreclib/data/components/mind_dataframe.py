@@ -373,6 +373,24 @@ class MINDDataFrame(Dataset):
                     fpath=subcateg2index_fpath,
                 )
 
+                # Modify the sentiment prediction part
+                if self.sentiment_annotator is not None:
+                    news["sentiment_preds"] = news["title"].progress_apply(
+                        lambda text: self.sentiment_annotator(text)
+                    )
+                    news["sentiment_class"] = news["sentiment_preds"].apply(
+                        lambda x: np.argmax(x)
+                    )
+                    news["sentiment_score"] = news["sentiment_preds"].apply(
+                        lambda x: x[np.argmax(x)]
+                    )
+                else:
+                    # Add default values when no sentiment annotator is provided
+                    news["sentiment_preds"] = None
+                    news["sentiment_class"] = 0  # or whatever default class you want
+                    news["sentiment_score"] = 0.0  # or whatever default score you want
+    
+
                 # compute sentiment classes
                 if (
                     "sentiment_class" in self.dataset_attributes
