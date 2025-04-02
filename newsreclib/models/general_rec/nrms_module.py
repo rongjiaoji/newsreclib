@@ -152,24 +152,6 @@ class NRMSModule(AbstractRecommneder):
                 dropout_probability=self.hparams.dropout_probability,
             )
 
-'''
-
-        # initialize news encoder
-        self.news_encoder = NewsEncoder(
-            dataset_attributes=self.hparams.dataset_attributes,
-            attributes2encode=self.hparams.attributes2encode,
-            concatenate_inputs=False,
-            text_encoder=text_encoder,
-            category_encoder=None,
-            entity_encoder=None,
-            combine_vectors=False,
-            combine_type=None,
-            input_dim=None,
-            query_dim=None,
-            output_dim=None,
-        )
-'''
-
         # initialize user encoder, if needed
         if not self.hparams.late_fusion:
             self.user_encoder = UserEncoder(
@@ -471,10 +453,7 @@ class NRMSModule(AbstractRecommneder):
         self.log(
             "test/loss",
             self.test_loss,
-            on_step=False,
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
+            on_step=False, on_epoch=True, prog_bar=True, logger=True,
             sync_dist=True,
         )
 
