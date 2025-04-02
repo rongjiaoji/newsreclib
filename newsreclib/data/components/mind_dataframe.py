@@ -93,7 +93,7 @@ class MINDDataFrame(Dataset):
         entity_embed_dim: int,
         entity_freq_threshold: int,
         entity_conf_threshold: float,
-        sentiment_annotator: nn.Module,
+        sentiment_annotator: Optional[nn.Module] = None,  # Change this line
         valid_time_split: str,
         train: bool,
         validation: bool,
@@ -293,14 +293,19 @@ class MINDDataFrame(Dataset):
                     self.id2index_filenames["sentiment2index"],
                 )
 
-                # compute sentiment classes
-                log.info("Computing sentiments.")
-                news["sentiment_preds"] = news["title"].progress_apply(
-                    lambda text: self.sentiment_annotator(text)
-                )
-                news["sentiment_class"], news["sentiment_score"] = zip(*news["sentiment_preds"])
-                news.drop(columns=["sentiment_preds"], inplace=True)
-                log.info("Sentiments computation completed.")
+                # Only compute sentiments if annotator exists
+                if self.sentiment_annotator is not None:
+                    log.info("Computing sentiments.")
+                    news["sentiment_preds"] = news["title"].progress_apply(
+                        lambda text: self.sentiment_annotator(text)
+                    )
+                    news["sentiment_class"], news["sentiment_score"] = zip(*news["sentiment_preds"])
+                    news.drop(columns=["sentiment_preds"], inplace=True)
+                    log.info("Sentiments computation completed.")
+                else:
+                    # Add default values
+                    news["sentiment_class"] = 0
+                    news["sentiment_score"] = 0.0
 
             if self.data_split == "train":
                 if not self.use_plm:
@@ -373,35 +378,15 @@ class MINDDataFrame(Dataset):
                     fpath=subcateg2index_fpath,
                 )
 
-                # Modify the sentiment prediction part
-                if self.sentiment_annotator is not None:
-                    news["sentiment_preds"] = news["title"].progress_apply(
-                        lambda text: self.sentiment_annotator(text)
-                    )
-                    news["sentiment_class"] = news["sentiment_preds"].apply(
-                        lambda x: np.argmax(x)
-                    )
-                    news["sentiment_score"] = news["sentiment_preds"].apply(
-                        lambda x: x[np.argmax(x)]
-                    )
-                else:
-                    # Add default values when no sentiment annotator is provided
-                    news["sentiment_preds"] = None
-                    news["sentiment_class"] = 0  # or whatever default class you want
-                    news["sentiment_score"] = 0.0  # or whatever default score you want
-    
-
                 # compute sentiment classes
                 if (
                     "sentiment_class" in self.dataset_attributes
                     or "sentiment_score" in self.dataset_attributes
                 ):
-                    # sentiment2index map
-                    log.info("Constructing sentiment2index map.")
-                    news_sentiment = (
-                        news["sentiment_class"].drop_duplicates().reset_index(drop=True)
-                    )
-                    sentiment2index = {v: k + 1 for k, v in news_sentiment.to_dict().items()}
+                    # When sentiment_annotator is None, we still need to create a minimal sentiment2index map
+                    # with just the default class (0)
+                    log.info("Constructing minimal sentiment2index map.")
+                    sentiment2index = {0: 1}  # Map the default sentiment class (0) to index 1
                     log.info(
                         f"Saving sentiment2index map of size {len(sentiment2index)} in {sentiment2index_fpath}"
                     )
