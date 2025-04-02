@@ -147,12 +147,8 @@ class MINDRecDataModule(LightningDataModule):
         # this line allows to access init params with 'self.hparams' attribute
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(ignore=['sentiment_annotator'], logger=False)
-
-        if sentiment_annotator is not None:
-            self.sentiment_annotator = hydra.utils.instantiate(sentiment_annotator)
-
-        else:
-            self.sentiment_annotator = None
+        
+        self.sentiment_annotator = None if sentiment_annotator is None else hydra.utils.instantiate(sentiment_annotator)
         
         self.custom_embeddings = torch.load(custom_embedding_path) if custom_embedding_path else None
         self.news_id_to_index = self._load_news_ids()
