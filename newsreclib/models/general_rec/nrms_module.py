@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List, Optional, Tuple
 
 import torch
@@ -109,8 +110,19 @@ class NRMSModule(AbstractRecommneder):
         # Save hyperparameters
         self.save_hyperparameters()
 
-        # Verify required parameters
+        # Verify required parameters and fix path
         assert custom_embedding_path is not None, "Custom embedding path must be provided."
+        if custom_embedding_path.startswith('data/'):
+            # Convert relative path to absolute using data_dir from config
+            custom_embedding_path = os.path.join('/content/newsreclib/data/', custom_embedding_path[5:])
+        
+        if not os.path.exists(custom_embedding_path):
+            raise FileNotFoundError(
+                f"Custom embedding file not found at: {custom_embedding_path}\n"
+                f"Working directory: {os.getcwd()}\n"
+                f"File exists check: {os.path.exists(custom_embedding_path)}"
+            )
+
         if self.hparams.save_recs:
             assert isinstance(self.hparams.recs_fpath, str)
 
