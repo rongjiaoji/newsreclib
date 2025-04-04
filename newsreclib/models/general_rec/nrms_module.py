@@ -106,16 +106,20 @@ class NRMSModule(AbstractRecommneder):
             scheduler=scheduler,
         )
         
+        # Save hyperparameters
+        self.save_hyperparameters()
+
+        # Verify required parameters
         assert custom_embedding_path is not None, "Custom embedding path must be provided."
-        self.news_encoder = CustomNewsEncoder(custom_embedding_path)
-
-        self.num_categ_classes = self.hparams.num_categ_classes + 1
-        self.num_sent_classes = self.hparams.num_sent_classes + 1
-
         if self.hparams.save_recs:
             assert isinstance(self.hparams.recs_fpath, str)
 
-        # initialize loss
+        # Initialize components
+        self.news_encoder = CustomNewsEncoder(custom_embedding_path)
+        self.num_categ_classes = self.hparams.num_categ_classes + 1
+        self.num_sent_classes = self.hparams.num_sent_classes + 1
+
+        # Initialize loss function(s)
         if not self.hparams.dual_loss_training:
             self.criterion = self._get_loss(self.hparams.loss)
         else:
@@ -123,36 +127,7 @@ class NRMSModule(AbstractRecommneder):
             assert self.hparams.loss == "dual_loss"
             self.ce_criterion, self.scl_criterion = self._get_loss(self.hparams.loss)
 
-        # initialize text encoder
-        if not self.hparams.use_plm:
-            # pretrained embeddings + contextualization
-            assert isinstance(self.hparams.pretrained_embeddings_path, str)
-            pretrained_embeddings = self._init_embedding(
-                filepath=self.hparams.pretrained_embeddings_path
-            )
-            text_encoder = MHSAAddAtt(
-                pretrained_embeddings=pretrained_embeddings,
-                embed_dim=self.hparams.embed_dim,
-                num_heads=self.hparams.num_heads,
-                query_dim=self.hparams.query_dim,
-                dropout_probability=self.hparams.dropout_probability,
-            )
-        else:
-            # use PLM
-            assert isinstance(self.hparams.plm_model, str)
-            text_encoder = PLM(
-                plm_model=self.hparams.plm_model,
-                frozen_layers=self.hparams.frozen_layers,
-                embed_dim=self.hparams.embed_dim,
-                use_mhsa=True,
-                apply_reduce_dim=False,
-                reduced_embed_dim=None,
-                num_heads=self.hparams.num_heads,
-                query_dim=self.hparams.query_dim,
-                dropout_probability=self.hparams.dropout_probability,
-            )
-
-        # initialize user encoder, if needed
+        # Initialize user encoder if needed
         if not self.hparams.late_fusion:
             self.user_encoder = UserEncoder(
                 news_embed_dim=self.hparams.embed_dim,
@@ -160,10 +135,10 @@ class NRMSModule(AbstractRecommneder):
                 query_dim=self.hparams.query_dim,
             )
 
-        # initialize click predictor
+        # Initialize remaining components
         self.click_predictor = DotProduct()
-
-        # collect outputs of `*_step`
+        
+        # Initialize metric storage
         self.training_step_outputs = {key: [] for key in self.step_outputs["train"]}
         self.val_step_outputs = {key: [] for key in self.step_outputs["val"]}
         self.test_step_outputs = {key: [] for key in self.step_outputs["test"]}
