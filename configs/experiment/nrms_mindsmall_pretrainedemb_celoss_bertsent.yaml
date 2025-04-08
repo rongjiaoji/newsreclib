@@ -19,6 +19,8 @@ seed: 42
 
 data:
   dataset_size: "small"
+  use_pretrained_embeddings: false  # Don't use GloVe
+  custom_embedding_path: "https://path-to-your-embeddings/custom_embeddings.pt"  # Update with actual URL
 
 model:
   use_plm: False
@@ -27,6 +29,7 @@ model:
   num_heads: 15
   query_dim: 200
   dropout_probability: 0.2
+  custom_embedding_path: ${data.custom_embedding_path}
 
 callbacks:
   early_stopping:

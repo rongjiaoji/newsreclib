@@ -54,12 +54,6 @@ class MINDRecDataModule(LightningDataModule):
             List of news features available in the used dataset (e.g., title, category, etc.).
         id2index_filenames:
             Dictionary mapping id2index dictionary to corresponding filenames.
-        pretrained_embeddings_url:
-            URL for downloading pretrained word embeddings (e.g., Glove).
-        word_embeddings_dirname:
-            Directory where to download and extract the pretrained word embeddings.
-        word_embeddings_fpath:
-            Filepath to the pretrained word embeddings.
         entity_embeddings_filename:
             Filepath to the pretrained entity embeddings.
         use_plm:
@@ -109,13 +103,10 @@ class MINDRecDataModule(LightningDataModule):
     def __init__(
         self,
         dataset_size: str,
-        dataset_url: DictConfig,
+        dataset_url: Dict[str, Dict[str, str]],
         data_dir: str,
         dataset_attributes: List[str],
         id2index_filenames: DictConfig,
-        pretrained_embeddings_url: Optional[str],
-        word_embeddings_dirname: Optional[str],
-        word_embeddings_fpath: Optional[str],
         entity_embeddings_filename: str,
         use_plm: bool,
         use_pretrained_categ_embeddings: bool,
@@ -124,7 +115,6 @@ class MINDRecDataModule(LightningDataModule):
         entity_embed_dim: int,
         entity_freq_threshold: int,
         entity_conf_threshold: float,
-        #sentiment_annotator: nn.Module,
         valid_time_split: str,
         max_title_len: int,
         max_abstract_len: int,
@@ -202,9 +192,6 @@ class MINDRecDataModule(LightningDataModule):
             data_dir=self.hparams.data_dir,
             dataset_attributes=self.hparams.dataset_attributes,
             id2index_filenames=self.hparams.id2index_filenames,
-            pretrained_embeddings_url=self.hparams.pretrained_embeddings_url,
-            word_embeddings_dirname=self.hparams.word_embeddings_dirname,
-            word_embeddings_fpath=self.hparams.word_embeddings_fpath,
             entity_embeddings_filename=self.hparams.entity_embeddings_filename,
             use_plm=self.hparams.use_plm,
             use_pretrained_categ_embeddings=self.hparams.use_pretrained_categ_embeddings,
@@ -213,7 +200,6 @@ class MINDRecDataModule(LightningDataModule):
             entity_embed_dim=self.hparams.entity_embed_dim,
             entity_freq_threshold=self.hparams.entity_freq_threshold,
             entity_conf_threshold=self.hparams.entity_conf_threshold,
-            #sentiment_annotator=self.hparams.sentiment_annotator,
             valid_time_split=self.hparams.valid_time_split,
             sentiment_annotator=self.sentiment_annotator,  # explicit fix here
             train=True,
@@ -228,9 +214,6 @@ class MINDRecDataModule(LightningDataModule):
             data_dir=self.hparams.data_dir,
             dataset_attributes=self.hparams.dataset_attributes,
             id2index_filenames=self.hparams.id2index_filenames,
-            pretrained_embeddings_url=self.hparams.pretrained_embeddings_url,
-            word_embeddings_dirname=self.hparams.word_embeddings_dirname,
-            word_embeddings_fpath=self.hparams.word_embeddings_fpath,
             entity_embeddings_filename=self.hparams.entity_embeddings_filename,
             use_plm=self.hparams.use_plm,
             use_pretrained_categ_embeddings=self.hparams.use_pretrained_categ_embeddings,
@@ -261,9 +244,6 @@ class MINDRecDataModule(LightningDataModule):
                 data_dir=self.hparams.data_dir,
                 dataset_attributes=self.hparams.dataset_attributes,
                 id2index_filenames=self.hparams.id2index_filenames,
-                pretrained_embeddings_url=self.hparams.pretrained_embeddings_url,
-                word_embeddings_dirname=self.hparams.word_embeddings_dirname,
-                word_embeddings_fpath=self.hparams.word_embeddings_fpath,
                 entity_embeddings_filename=self.hparams.entity_embeddings_filename,
                 use_plm=self.hparams.use_plm,
                 use_pretrained_categ_embeddings=self.hparams.use_pretrained_categ_embeddings,
@@ -284,9 +264,6 @@ class MINDRecDataModule(LightningDataModule):
                 data_dir=self.hparams.data_dir,
                 dataset_attributes=self.hparams.dataset_attributes,
                 id2index_filenames=self.hparams.id2index_filenames,
-                pretrained_embeddings_url=self.hparams.pretrained_embeddings_url,
-                word_embeddings_dirname=self.hparams.word_embeddings_dirname,
-                word_embeddings_fpath=self.hparams.word_embeddings_fpath,
                 entity_embeddings_filename=self.hparams.entity_embeddings_filename,
                 use_plm=self.hparams.use_plm,
                 use_pretrained_categ_embeddings=self.hparams.use_pretrained_categ_embeddings,
@@ -307,9 +284,6 @@ class MINDRecDataModule(LightningDataModule):
                 data_dir=self.hparams.data_dir,
                 dataset_attributes=self.hparams.dataset_attributes,
                 id2index_filenames=self.hparams.id2index_filenames,
-                pretrained_embeddings_url=self.hparams.pretrained_embeddings_url,
-                word_embeddings_dirname=self.hparams.word_embeddings_dirname,
-                word_embeddings_fpath=self.hparams.word_embeddings_fpath,
                 entity_embeddings_filename=self.hparams.entity_embeddings_filename,
                 use_plm=self.hparams.use_plm,
                 use_pretrained_categ_embeddings=self.hparams.use_pretrained_categ_embeddings,
