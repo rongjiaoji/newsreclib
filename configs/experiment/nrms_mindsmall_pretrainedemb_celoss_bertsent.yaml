@@ -20,7 +20,7 @@ seed: 42
 data:
   dataset_size: "small"
   use_pretrained_embeddings: false  # Don't use GloVe
-  custom_embedding_path: "https://path-to-your-embeddings/custom_embeddings.pt"  # Update with actual URL
+  custom_embedding_path: "https://drive.google.com/file/d/19qL9pPjQZx0Xt503zGvBAGbzoyDT8Qqe/view?usp=sharing/custom_embeddings.pt"  # Update with actual URL
 
 model:
   use_plm: False
