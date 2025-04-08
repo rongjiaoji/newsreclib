@@ -18,158 +18,44 @@ from newsreclib.data.components.rec_dataset import (
 
 
 class MINDRecDataModule(LightningDataModule):
-    """Example of LightningDataModule for the MIND dataset.
-
-    A DataModule implements 6 key methods:
-        def prepare_data(self):
-            # things to do on 1 GPU/TPU (not on every GPU/TPU in DDP)
-            # download data, pre-process, split, save to disk, etc...
-        def setup(self, stage):
-            # things to do on every process in DDP
-            # load data, set variables, etc...
-        def train_dataloader(self):
-            # return train dataloader
-        def val_dataloader(self):
-            # return validation dataloader
-        def test_dataloader(self):
-            # return test dataloader
-        def teardown(self):
-            # called on every process in DDP
-            # clean up after fit or test
-
-    This allows you to share a full dataset without explaining how to download,
-    split, transform and process the data.
-
-    Read the docs:
-        https://lightning.ai/docs/pytorch/latest/data/datamodule.html
-
-    Attributes:
-        dataset_size:
-            A string indicating the type of the dataset. Choose between `large` and `small`.
-        dataset_url:
-            Dictionary of URLs for downloading the `train` and `dev` datasets for the specified `dataset_size`.
-        data_dir:
-            Path to the data directory.
-        dataset_attributes:
-            List of news features available in the used dataset (e.g., title, category, etc.).
-        id2index_filenames:
-            Dictionary mapping id2index dictionary to corresponding filenames.
-        entity_embeddings_filename:
-            Filepath to the pretrained entity embeddings.
-        use_plm:
-            If ``True``, it will process the data for a petrained language model (PLM) in the news encoder. If ``False``, it will tokenize the news title and abstract to be used initialized with pretrained word embeddings.
-        use_pretrained_categ_embeddings:
-            Whether to initialize category embeddings with pretrained word embeddings.
-        categ_embed_dim:
-            Dimensionality of category embeddings.
-        word_embed_dim:
-            Dimensionality of word embeddings.
-        entity_embed_dim:
-            Dimensionality of entity embeddings.
-        entity_freq_threshold:
-            Minimum frequency for an entity to be included in the processed dataset.
-        entity_conf_threshold:
-            Minimum confidence for an entity to be included in the processed dataset.
-        sentiment_annotator:
-            The sentiment annotator module used.
-        valid_time_split:
-            A string with the date before which click behaviors are included in the train set. After this date, behaviors are included in the validation set.
-        max_title_len:
-            Maximum title length.
-        max_abstract_len:
-            Maximum abstract length.
-        concatenate_inputs:
-            Whether to concatenate inputs (e.g., title and abstract) before feeding them into the news encoder.
-        tokenizer_name:
-            Name of the tokenizer, if using a pretrained language model in the news encoder.
-        tokenizer_use_fast:
-            Whether to use a fast tokenizer.
-        tokenizer_max_len:
-            Maximum length of the tokenizer.
-        max_history_len:
-            Maximum history length.
-        neg_sampling_ratio:
-            Number of negatives per positive sample for training.
-        batch_size:
-            How many samples per batch to load.
-        num_workers:
-            How many subprocesses to use for data loading. 0 means that the data will be loaded in the main process.
-        pin_memory:
-             If ``True``, the data loader will copy Tensors into device/CUDA pinned memory before returning them. If your data elements are a custom type, or your collate_fn returns a batch that is a custom type, see the example below.
-        drop_last:
-             Set to ``True`` to drop the last incomplete batch, if the dataset size is not divisible by the batch size. If ``False`` and the size of dataset is not divisible by the batch size, then the last batch will be smaller.
-    """
-
     def __init__(
         self,
         dataset_size: str,
         dataset_url: Dict[str, Dict[str, str]],
         data_dir: str,
+        custom_embedding_path: str,
         dataset_attributes: List[str],
-        id2index_filenames: DictConfig,
-        entity_embeddings_filename: str,
-        use_plm: bool,
-        use_pretrained_categ_embeddings: bool,
-        categ_embed_dim: Optional[int],
-        word_embed_dim: Optional[int],
-        entity_embed_dim: int,
-        entity_freq_threshold: int,
-        entity_conf_threshold: float,
-        valid_time_split: str,
-        max_title_len: int,
-        max_abstract_len: int,
-        concatenate_inputs: bool,
-        tokenizer_name: Optional[str],
-        tokenizer_use_fast: Optional[bool],
-        tokenizer_max_len: Optional[int],
-        max_history_len: int,
-        neg_sampling_ratio: float,
-        batch_size: int,
-        num_workers: int,
-        pin_memory: bool,
-        drop_last: bool,
-        custom_embedding_path: Optional[str] = None,
-        sentiment_annotator=None,
-        use_pretrained_embeddings: bool = True,
-    ) -> None:
+        batch_size: int = 64,
+        num_workers: int = 0,
+        pin_memory: bool = True,
+        drop_last: bool = False,
+    ):
+        """Initialize MIND dataset for news recommendation with custom embeddings.
+        
+        Args:
+            dataset_size: Size of dataset ('small' or 'large')
+            dataset_url: URLs for downloading datasets
+            data_dir: Root directory for data storage
+            custom_embedding_path: Path to pre-computed news embeddings
+            dataset_attributes: List of news attributes to use
+            batch_size: Batch size for dataloaders
+            num_workers: Number of workers for dataloaders
+            pin_memory: Whether to pin memory for dataloaders
+            drop_last: Whether to drop last incomplete batch
+        """
         super().__init__()
-
-        # this line allows to access init params with 'self.hparams' attribute
-        # also ensures init params will be stored in ckpt
-        self.save_hyperparameters(ignore=['sentiment_annotator'], logger=False)
+        self.save_hyperparameters()
         
-        self.sentiment_annotator = None if sentiment_annotator is None else hydra.utils.instantiate(sentiment_annotator)
-        
-        self.custom_embeddings = torch.load(custom_embedding_path) if custom_embedding_path else None
-        self.news_id_to_index = self._load_news_ids()
-        print(self.hparams.custom_embedding_path)
-
-        assert set(self.news_id_to_index.keys()).issubset(set(self.custom_embeddings.keys())), \
-    "Embedding keys mismatch explicitly!"
-
-
-        if use_pretrained_embeddings:
-            self.load_pretrained_embeddings()
-        else:
-            print("Skipping pretrained embeddings loading explicitly.")
-        
-    
-        self.data_train: Optional[Dataset] = None
-        self.data_val: Optional[Dataset] = None
-        self.data_test: Optional[Dataset] = None
-
-        if self.hparams.use_plm:
-            assert isinstance(self.hparams.tokenizer_name, str)
-            assert isinstance(self.hparams.tokenizer_use_fast, bool)
-            assert (
-                isinstance(self.hparams.tokenizer_max_len, int)
-                and self.hparams.tokenizer_max_len > 0
-            )
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                self.hparams.tokenizer_name,
-                use_fast=self.hparams.tokenizer_use_fast,
-                model_max_length=self.hparams.tokenizer_max_len,
-            )
+        # Core parameters
+        self.dataset_size = dataset_size
+        self.dataset_url = dataset_url
+        self.data_dir = data_dir
+        self.custom_embedding_path = custom_embedding_path
+        self.dataset_attributes = dataset_attributes
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.pin_memory = pin_memory
+        self.drop_last = drop_last
 
     def _load_news_ids(self):
         news_ids = {}

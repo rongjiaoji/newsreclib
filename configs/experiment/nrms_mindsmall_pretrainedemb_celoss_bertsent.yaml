@@ -19,7 +19,6 @@ seed: 42
 
 data:
   dataset_size: "small"
-  use_pretrained_embeddings: false  # Don't use GloVe
   custom_embedding_path: ${paths.data_dir}/custom_embeddings.pt  # Local path first
 
 model:

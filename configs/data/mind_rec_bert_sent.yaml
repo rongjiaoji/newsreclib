@@ -5,3 +5,30 @@ sentiment_annotator:
   _target_: newsreclib.data.components.sentiment_annotator.BERTSentimentAnnotator
   model_name: "cardiffnlp/twitter-xlm-roberta-base-sentiment"
   tokenizer_max_len: 96
+
+_target_: newsreclib.data.mind_rec_datamodule.MINDRecDataModule
+dataset_size: "small"
+dataset_url:
+  large:
+    train: https://recodatasets.z20.web.core.windows.net/newsrec/MINDlarge_train.zip
+    dev: https://recodatasets.z20.web.core.windows.net/newsrec/MINDlarge_dev.zip
+  small:
+    train: https://recodatasets.z20.web.core.windows.net/newsrec/MINDsmall_train.zip
+    dev: https://recodatasets.z20.web.core.windows.net/newsrec/MINDsmall_dev.zip
+data_dir: ${paths.data_dir}
+custom_embedding_path: ${paths.data_dir}/custom_embeddings.pt
+dataset_attributes:
+  - title
+  - abstract
+  - category
+  - subcategory
+  - title_entities
+  - abstract_entities
+  - category_class
+  - subcategory_class
+  - sentiment_class
+  - sentiment_score
+batch_size: 64
+num_workers: 0
+pin_memory: true
+drop_last: false
