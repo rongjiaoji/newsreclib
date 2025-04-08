@@ -9,7 +9,7 @@ dataset_size: one_week # choose from 'three_month' or 'one_week'
 dataset_url:
   three_month: "https://reclab.idi.ntnu.no/dataset/three_month.tar.gz"
   one_week: "https://reclab.idi.ntnu.no/dataset/one_week.tar.gz"
-pretrained_embeddings_url: "https://bpemb.h-its.org/no/no.wiki.bpe.vs200000.d300.w2v.txt.tar.gz"
+#pretrained_embeddings_url: "https://bpemb.h-its.org/no/no.wiki.bpe.vs200000.d300.w2v.txt.tar.gz"
 
 # File names and paths
 data_dir: ${paths.data_dir}

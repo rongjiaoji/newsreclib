@@ -82,7 +82,7 @@ class MINDDataFrame(Dataset):
         data_dir: str,
         dataset_attributes: List[str],
         id2index_filenames: DictConfig,
-        pretrained_embeddings_url: Optional[str],
+        #pretrained_embeddings_url: Optional[str],
         word_embeddings_dirname: Optional[str],
         word_embeddings_fpath: Optional[str],
         entity_embeddings_filename: str,
@@ -149,7 +149,7 @@ class MINDDataFrame(Dataset):
             )
 
             if not self.use_plm or self.use_pretrained_categ_embeddings:
-                assert isinstance(pretrained_embeddings_url, str)
+                #assert isinstance(pretrained_embeddings_url, str)
                 assert isinstance(word_embeddings_dirname, str)
                 assert isinstance(word_embeddings_fpath, str)
                 data_utils.download_and_extract_pretrained_embeddings(
