@@ -20,16 +20,15 @@ seed: 42
 data:
   dataset_size: "small"
   use_pretrained_embeddings: false  # Don't use GloVe
-  custom_embedding_path: "https://drive.google.com/file/d/19qL9pPjQZx0Xt503zGvBAGbzoyDT8Qqe/view?usp=sharing/custom_embeddings.pt"  # Update with actual URL
+  custom_embedding_path: ${paths.data_dir}/custom_embeddings.pt  # Local path first
 
 model:
-  use_plm: False
-  pretrained_embeddings_path: ${paths.data_dir}MINDsmall_train/transformed_word_embeddings.npy
+  use_plm: false
   embed_dim: 300
   num_heads: 15
   query_dim: 200
   dropout_probability: 0.2
-  custom_embedding_path: ${data.custom_embedding_path}
+  custom_embedding_path: ${data.custom_embedding_path}  # Inherit from data config
 
 callbacks:
   early_stopping:
