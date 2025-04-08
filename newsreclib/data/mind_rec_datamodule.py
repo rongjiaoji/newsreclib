@@ -25,23 +25,37 @@ class MINDRecDataModule(LightningDataModule):
         data_dir: str,
         custom_embedding_path: str,
         dataset_attributes: List[str],
+        use_plm: bool = False,
+        use_pretrained_embeddings: bool = False,
+        neg_sampling_ratio: int = 4,
+        max_title_len: int = 30,
+        max_abstract_len: int = 50,
+        max_history_len: int = 50,
+        valid_time_split: str = '2019-11-14 00:00:00',
         batch_size: int = 64,
         num_workers: int = 0,
         pin_memory: bool = True,
         drop_last: bool = False,
     ):
-        """Initialize MIND dataset for news recommendation with custom embeddings.
+        """Initialize MIND dataset module.
         
         Args:
             dataset_size: Size of dataset ('small' or 'large')
             dataset_url: URLs for downloading datasets
-            data_dir: Root directory for data storage
-            custom_embedding_path: Path to pre-computed news embeddings
+            data_dir: Root directory for data
+            custom_embedding_path: Path to pre-computed embeddings
             dataset_attributes: List of news attributes to use
-            batch_size: Batch size for dataloaders
-            num_workers: Number of workers for dataloaders
-            pin_memory: Whether to pin memory for dataloaders
-            drop_last: Whether to drop last incomplete batch
+            use_plm: Whether to use pre-trained language model
+            use_pretrained_embeddings: Whether to use pre-trained embeddings
+            neg_sampling_ratio: Ratio for negative sampling
+            max_title_len: Maximum title length
+            max_abstract_len: Maximum abstract length
+            max_history_len: Maximum history length
+            valid_time_split: Validation time split
+            batch_size: Batch size
+            num_workers: Number of workers
+            pin_memory: Whether to pin memory
+            drop_last: Whether to drop last batch
         """
         super().__init__()
         self.save_hyperparameters()

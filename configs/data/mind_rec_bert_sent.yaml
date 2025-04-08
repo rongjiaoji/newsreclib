@@ -8,7 +8,7 @@ sentiment_annotator:
 
 _target_: newsreclib.data.mind_rec_datamodule.MINDRecDataModule
 
-# Dataset configuration
+# Required parameters
 dataset_size: "small"
 dataset_url:
   large:
@@ -22,8 +22,12 @@ dataset_url:
 data_dir: ${paths.data_dir}
 custom_embedding_path: ${paths.data_dir}/custom_embeddings.pt
 
-# Data processing settings
-dataset_attributes:
+# Model configuration
+use_plm: false
+use_pretrained_embeddings: false
+
+# Data settings
+dataset_attributes: 
   - title
   - abstract
   - category
@@ -34,6 +38,13 @@ dataset_attributes:
   - subcategory_class
   - sentiment_class
   - sentiment_score
+
+# Processing parameters
+neg_sampling_ratio: 4
+max_title_len: 30
+max_abstract_len: 50
+max_history_len: 50
+valid_time_split: '2019-11-14 00:00:00'
 
 # DataLoader settings
 batch_size: 64
