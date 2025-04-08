@@ -35,6 +35,12 @@ callbacks:
 
 trainer:
   max_epochs: 20
+  accelerator: "cuda"  # Changed from cpu to cuda to use T4 GPU
+  devices: [0]        # Use first GPU (T4)
+  precision: "16-mixed"  # Better memory efficiency with mixed precision
+  check_val_every_n_epoch: 1
+  deterministic: false
+  profiler: simple
 
 logger:
   wandb:

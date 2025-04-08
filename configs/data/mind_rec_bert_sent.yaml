@@ -7,6 +7,8 @@ sentiment_annotator:
   tokenizer_max_len: 96
 
 _target_: newsreclib.data.mind_rec_datamodule.MINDRecDataModule
+
+# Dataset configuration
 dataset_size: "small"
 dataset_url:
   large:
@@ -15,8 +17,12 @@ dataset_url:
   small:
     train: https://recodatasets.z20.web.core.windows.net/newsrec/MINDsmall_train.zip
     dev: https://recodatasets.z20.web.core.windows.net/newsrec/MINDsmall_dev.zip
+
+# Paths
 data_dir: ${paths.data_dir}
 custom_embedding_path: ${paths.data_dir}/custom_embeddings.pt
+
+# Data processing settings
 dataset_attributes:
   - title
   - abstract
@@ -28,6 +34,8 @@ dataset_attributes:
   - subcategory_class
   - sentiment_class
   - sentiment_score
+
+# DataLoader settings
 batch_size: 64
 num_workers: 0
 pin_memory: true
