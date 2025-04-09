@@ -639,26 +639,74 @@ class MINDDataFrame(Dataset):
 
         return filtered_entities
 
+    def _validate_entity_embeddings(self) -> str:
+        """Validate and locate entity embeddings file for MIND small dataset."""
+        possible_paths = [
+            os.path.join(self.dst_dir, self.entity_embeddings_filename),
+            os.path.join(self.data_dir, "MINDsmall_train", self.entity_embeddings_filename),
+            os.path.join(self.data_dir, self.entity_embeddings_filename),
+        ]
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                log.info(f"Found entity embeddings at: {path}")
+                return path
+            
+        # If file not found, download it
+        download_url = "https://recodatasets.z20.web.core.windows.net/newsrec/MINDsmall_train/entity_embedding.vec"
+        download_path = os.path.join(self.data_dir, "MINDsmall_train", self.entity_embeddings_filename)
+        
+        log.info(f"Downloading entity embeddings from {download_url}")
+        os.makedirs(os.path.dirname(download_path), exist_ok=True)
+        
+        import urllib.request
+        urllib.request.urlretrieve(download_url, download_path)
+        
+        if os.path.exists(download_path):
+            log.info(f"Successfully downloaded entity embeddings to {download_path}")
+            return download_path
+            
+        raise FileNotFoundError(
+            f"Could not find or download entity embeddings file '{self.entity_embeddings_filename}'"
+        )
+
     def generate_entity_embeddings(
-        self, entity2index: pd.DataFrame, transformed_embeddings_fpath: str
+        self, entity2index: Dict[str, int], transformed_embeddings_fpath: str
     ):
+        """Generate entity embeddings for MIND small dataset.
+        
+        Args:
+            entity2index: Mapping from entity IDs to indices
+            transformed_embeddings_fpath: Path to save transformed embeddings
+        """
+        # Get validated embeddings path
+        entity_embeddings_path = self._validate_entity_embeddings()
+        
+        # Load and process entity embeddings
         entity2index_df = pd.DataFrame(entity2index.items(), columns=["entity", "index"])
-        entity_embedding = pd.read_table(
-            os.path.join(self.dst_dir, self.entity_embeddings_filename), header=None
-        )
-        entity_embedding["vector"] = entity_embedding.iloc[:, 1:101].values.tolist()
-        entity_embedding = entity_embedding[[0, "vector"]].rename(columns={0: "entity"})
-
-        merged_df = pd.merge(entity_embedding, entity2index_df, on="entity").sort_values("index")
-        entity_embedding_transformed = np.random.normal(
-            size=(len(entity2index_df) + 1, self.entity_embed_dim)
-        )
-        for row in merged_df.itertuples(index=False):
-            entity_embedding_transformed[row.index] = row.vector
-
-        # cache transformed embeddings
-        np.save(
-            transformed_embeddings_fpath,
-            entity_embedding_transformed,
-            allow_pickle=True,
-        )
+        try:
+            entity_embedding = pd.read_table(entity_embeddings_path, header=None)
+            log.info(f"Loaded entity embeddings with shape: {entity_embedding.shape}")
+            
+            # Extract vectors (columns 1:101 for 100-dim vectors)
+            entity_embedding["vector"] = entity_embedding.iloc[:, 1:101].values.tolist()
+            entity_embedding = entity_embedding[[0, "vector"]].rename(columns={0: "entity"})
+            
+            # Merge with entity indices
+            merged_df = pd.merge(entity_embedding, entity2index_df, on="entity").sort_values("index")
+            
+            # Initialize random embeddings
+            entity_embedding_transformed = np.random.normal(
+                size=(len(entity2index_df) + 1, self.entity_embed_dim)
+            )
+            
+            # Fill in actual embeddings
+            for row in merged_df.itertuples(index=False):
+                entity_embedding_transformed[row.index] = row.vector
+                
+            # Save transformed embeddings
+            log.info(f"Saving transformed entity embeddings to {transformed_embeddings_fpath}")
+            np.save(transformed_embeddings_fpath, entity_embedding_transformed, allow_pickle=True)
+            
+        except Exception as e:
+            raise ValueError(f"Error processing entity embeddings: {str(e)}")
