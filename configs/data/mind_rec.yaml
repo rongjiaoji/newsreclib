@@ -31,13 +31,7 @@ dataset_attributes:
   - "sentiment_class"
   - "sentiment_score"
 
-id2index_filenames:
-  word2index: "word2index.tsv"
-  entity2index: "entity2index.tsv"
-  categ2index: "categ2index.tsv"
-  subcateg2index: "subcateg2index.tsv"
-  sentiment2index: "sentiment2index.tsv"
-  uid2index: "uid2index.tsv"
+
 
 use_plm: False
 use_pretrained_embeddings: False
