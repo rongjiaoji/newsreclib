@@ -20,10 +20,7 @@ def test_mind_rec_small_datamodule(batch_size):
             "dev": "https://mind201910small.blob.core.windows.net/release/MINDsmall_dev.zip",
         },
     }
-    pretrained_embeddings_url = "https://nlp.stanford.edu/data/glove.840B.300d.zip"
     data_dir = "data/"
-    word_embeddings_dirname = "glove"
-    word_embeddings_fpath = "data/glove/glove.840B.300d.txt"
     entity_embeddings_filename = "entity_embedding.vec"
     dataset_attributes = [
         "title",
@@ -38,7 +35,6 @@ def test_mind_rec_small_datamodule(batch_size):
         "sentiment_score",
     ]
     id2index_filenames = {
-        "word2index": "word2index.tsv",
         "entity2index": "entity2index.tsv",
         "categ2index": "categ2index.tsv",
         "subcateg2index": "subcateg2index.tsv",
@@ -46,9 +42,6 @@ def test_mind_rec_small_datamodule(batch_size):
         "uid2index": "uid2index.tsv",
     }
     use_plm = False
-    use_pretrained_categ_embeddings = True
-    word_embed_dim = 300
-    categ_embed_dim = 300
     entity_embed_dim = 100
     entity_freq_threshold = 2
     entity_conf_threshold = 0.5
@@ -75,14 +68,8 @@ def test_mind_rec_small_datamodule(batch_size):
         data_dir=data_dir,
         dataset_attributes=dataset_attributes,
         id2index_filenames=id2index_filenames,
-        pretrained_embeddings_url=pretrained_embeddings_url,
-        word_embeddings_dirname=word_embeddings_dirname,
-        word_embeddings_fpath=word_embeddings_fpath,
         entity_embeddings_filename=entity_embeddings_filename,
         use_plm=use_plm,
-        use_pretrained_categ_embeddings=use_pretrained_categ_embeddings,
-        categ_embed_dim=categ_embed_dim,
-        word_embed_dim=word_embed_dim,
         entity_embed_dim=entity_embed_dim,
         entity_freq_threshold=entity_freq_threshold,
         entity_conf_threshold=entity_conf_threshold,

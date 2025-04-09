@@ -23,39 +23,33 @@ class MINDRecDataModule(LightningDataModule):
         dataset_size: str,
         dataset_url: Dict[str, Dict[str, str]],
         data_dir: str,
-        custom_embedding_path: str,
         dataset_attributes: List[str],
-        use_plm: bool = False,
-        use_pretrained_embeddings: bool = False,
-        neg_sampling_ratio: int = 4,
-        max_title_len: int = 30,
-        max_abstract_len: int = 50,
-        max_history_len: int = 50,
-        valid_time_split: str = '2019-11-14 00:00:00',
-        batch_size: int = 64,
-        num_workers: int = 0,
-        pin_memory: bool = True,
-        drop_last: bool = False,
+        id2index_filenames: Dict[str, str],
+        entity_embeddings_filename: str,
+        use_plm: bool,
+        entity_embed_dim: int,
+        entity_freq_threshold: int,
+        entity_conf_threshold: float,
+        valid_time_split: str,
+        max_title_len: int,
+        max_abstract_len: int,
+        max_history_len: int,
+        neg_sampling_ratio: int,
+        batch_size: int,
+        num_workers: int,
+        pin_memory: bool,
+        drop_last: bool,
+        sentiment_annotator: Optional[nn.Module] = None,
     ):
-        """Initialize MIND dataset module.
+        """Initialize a MINDRecDataModule.
         
-        Args:
-            dataset_size: Size of dataset ('small' or 'large')
-            dataset_url: URLs for downloading datasets
-            data_dir: Root directory for data
-            custom_embedding_path: Path to pre-computed embeddings
-            dataset_attributes: List of news attributes to use
-            use_plm: Whether to use pre-trained language model
-            use_pretrained_embeddings: Whether to use pre-trained embeddings
-            neg_sampling_ratio: Ratio for negative sampling
-            max_title_len: Maximum title length
-            max_abstract_len: Maximum abstract length
-            max_history_len: Maximum history length
-            valid_time_split: Validation time split
-            batch_size: Batch size
-            num_workers: Number of workers
-            pin_memory: Whether to pin memory
-            drop_last: Whether to drop last batch
+        Removed GloVe-related parameters:
+        - pretrained_embeddings_url
+        - word_embeddings_dirname
+        - word_embeddings_fpath
+        - use_pretrained_categ_embeddings
+        - word_embed_dim
+        - categ_embed_dim
         """
         super().__init__()
         self.save_hyperparameters()
@@ -64,7 +58,6 @@ class MINDRecDataModule(LightningDataModule):
         self.dataset_size = dataset_size
         self.dataset_url = dataset_url
         self.data_dir = data_dir
-        self.custom_embedding_path = custom_embedding_path
         self.dataset_attributes = dataset_attributes
         self.batch_size = batch_size
         self.num_workers = num_workers
