@@ -43,7 +43,7 @@ entity_conf_threshold: 0.5
 
 # Model settings
 #use_plm: false
-concatenate_inputs: false
+#concatenate_inputs: false
 
 # Data processing
 valid_time_split: '2019-11-14 00:00:00'
