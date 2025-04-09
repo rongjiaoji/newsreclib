@@ -42,7 +42,7 @@ entity_freq_threshold: 2
 entity_conf_threshold: 0.5
 
 # Model settings
-use_plm: false
+#use_plm: false
 concatenate_inputs: false
 
 # Data processing
