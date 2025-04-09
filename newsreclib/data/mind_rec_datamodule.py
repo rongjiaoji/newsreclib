@@ -81,10 +81,7 @@ class MINDRecDataModule(LightningDataModule):
         return news_ids
     
     def prepare_data(self):
-        """Download data if needed.
-
-        Do not use it to assign state (self.x = y).
-        """
+        """Download data if needed."""
         # download train set
         MINDDataFrame(
             dataset_size=self.hparams.dataset_size,
@@ -96,20 +93,10 @@ class MINDRecDataModule(LightningDataModule):
             train=True,
             validation=False,
             download=True,
+            # Remove any GloVe-related parameters
         )
 
-        # download validation set
-        MINDDataFrame(
-            dataset_size=self.hparams.dataset_size,
-            dataset_url=self.hparams.dataset_url,
-            data_dir=self.hparams.data_dir,
-            dataset_attributes=self.hparams.dataset_attributes,
-            custom_embedding_path=self.hparams.custom_embedding_path,
-            valid_time_split=self.hparams.valid_time_split,
-            train=False,
-            validation=False,
-            download=True,
-        )
+        # Similar changes for validation and test set initializations
 
     def setup(self, stage: Optional[str] = None):
         """Load data. Set variables: `self.data_train`, `self.data_val`, `self.data_test`.

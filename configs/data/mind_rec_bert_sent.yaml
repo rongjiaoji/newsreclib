@@ -8,7 +8,7 @@ sentiment_annotator:
 
 _target_: newsreclib.data.mind_rec_datamodule.MINDRecDataModule
 
-# Required parameters
+# Required parameters only
 dataset_size: "small"
 dataset_url:
   large:
@@ -18,16 +18,11 @@ dataset_url:
     train: https://recodatasets.z20.web.core.windows.net/newsrec/MINDsmall_train.zip
     dev: https://recodatasets.z20.web.core.windows.net/newsrec/MINDsmall_dev.zip
 
-# Paths
 data_dir: ${paths.data_dir}
 custom_embedding_path: ${paths.data_dir}/custom_embeddings.pt
 
-# Model configuration
-use_plm: false
-use_pretrained_embeddings: false
-
-# Data settings
-dataset_attributes: 
+# Dataset configuration
+dataset_attributes:
   - title
   - abstract
   - category

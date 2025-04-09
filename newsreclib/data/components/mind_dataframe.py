@@ -81,30 +81,38 @@ class MINDDataFrame(Dataset):
         dataset_url: DictConfig,
         data_dir: str,
         dataset_attributes: List[str],
-        id2index_filenames: DictConfig,
-        #pretrained_embeddings_url: Optional[str],
-        word_embeddings_dirname: Optional[str],
-        word_embeddings_fpath: Optional[str],
-        entity_embeddings_filename: str,
-        use_plm: bool,
-        use_pretrained_categ_embeddings: bool,
-        word_embed_dim: Optional[int],
-        categ_embed_dim: Optional[int],
-        entity_embed_dim: int,
-        entity_freq_threshold: int,
-        entity_conf_threshold: float,
+        custom_embedding_path: str,  # Add this
         valid_time_split: str,
         train: bool,
         validation: bool,
         download: bool,
-        sentiment_annotator: Optional[nn.Module] = None,  # Move this to the end
-    ) -> None:
+        sentiment_annotator: Optional[nn.Module] = None,
+    ):
+        """Initialize dataset.
+        
+        Args:
+            dataset_size: Size of dataset ('small' or 'large')
+            dataset_url: URLs for downloading datasets
+            data_dir: Root directory for data
+            dataset_attributes: List of news attributes to use
+            custom_embedding_path: Path to pre-computed embeddings
+            valid_time_split: Validation time split
+            train: Whether this is training data
+            validation: Whether this is validation data
+            download: Whether to download the dataset
+            sentiment_annotator: Optional sentiment annotator
+        """
         super().__init__()
-
+        # Initialize only necessary parameters
         self.dataset_size = dataset_size
         self.dataset_url = dataset_url
         self.data_dir = data_dir
         self.dataset_attributes = dataset_attributes
+        self.custom_embedding_path = custom_embedding_path
+        self.valid_time_split = valid_time_split
+        self.validation = validation
+        self.data_split = "train" if train else "dev"
+
         self.id2index_filenames = id2index_filenames
 
         self.use_plm = use_plm
@@ -124,11 +132,6 @@ class MINDDataFrame(Dataset):
         self.entity_embeddings_filename = entity_embeddings_filename
 
         self.sentiment_annotator = sentiment_annotator
-
-        self.valid_time_split = valid_time_split
-
-        self.validation = validation
-        self.data_split = "train" if train else "dev"
 
         self.dst_dir = os.path.join(
             self.data_dir, "MIND" + self.dataset_size + "_" + self.data_split
