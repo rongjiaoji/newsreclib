@@ -23,49 +23,32 @@ class MINDRecDataModule(LightningDataModule):
         dataset_size: str,
         dataset_url: Dict[str, Dict[str, str]],
         data_dir: str,
-        dataset_attributes: List[str],
-        custom_embedding_path: str,
         entity_embeddings_filename: str,
+        custom_embedding_path: str,
+        dataset_attributes: List[str],
+        use_plm: bool,
         entity_embed_dim: int,
         entity_freq_threshold: int,
         entity_conf_threshold: float,
-        use_plm: bool,
-        concatenate_inputs: bool,
         valid_time_split: str,
-        neg_sampling_ratio: int,
         max_title_len: int,
         max_abstract_len: int,
         max_history_len: int,
+        neg_sampling_ratio: int,
         batch_size: int,
         num_workers: int,
         pin_memory: bool,
         drop_last: bool,
         sentiment_annotator: Optional[nn.Module] = None,
     ):
-        """Initialize a MINDRecDataModule.
+        """Initialize MINDRecDataModule.
         
-        Args:
-            dataset_size: Size of dataset ('small' or 'large')
-            dataset_url: URLs for downloading datasets
-            data_dir: Root directory for data
-            dataset_attributes: List of news attributes to use
-            custom_embedding_path: Path to pre-computed embeddings
-            entity_embeddings_filename: Filename for entity embeddings
-            entity_embed_dim: Dimension of entity embeddings
-            entity_freq_threshold: Minimum frequency for entities
-            entity_conf_threshold: Minimum confidence for entities
-            use_plm: Whether to use pretrained language model
-            concatenate_inputs: Whether to concatenate input features
-            valid_time_split: Validation time split
-            neg_sampling_ratio: Negative sampling ratio
-            max_title_len: Maximum title length
-            max_abstract_len: Maximum abstract length
-            max_history_len: Maximum history length
-            batch_size: Batch size for dataloaders
-            num_workers: Number of workers for dataloaders
-            pin_memory: Whether to pin memory
-            drop_last: Whether to drop last batch
-            sentiment_annotator: Optional sentiment annotator module
+        Removed GloVe-related parameters:
+        - word_embeddings_dirname
+        - word_embeddings_fpath
+        - use_pretrained_categ_embeddings
+        - word_embed_dim
+        - categ_embed_dim
         """
         super().__init__()
         self.save_hyperparameters()
@@ -102,20 +85,18 @@ class MINDRecDataModule(LightningDataModule):
             dataset_url=self.hparams.dataset_url,
             data_dir=self.hparams.data_dir,
             dataset_attributes=self.hparams.dataset_attributes,
-            custom_embedding_path=self.hparams.custom_embedding_path,
             entity_embeddings_filename=self.hparams.entity_embeddings_filename,
+            custom_embedding_path=self.hparams.custom_embedding_path,
+            use_plm=self.hparams.use_plm,
             entity_embed_dim=self.hparams.entity_embed_dim,
             entity_freq_threshold=self.hparams.entity_freq_threshold,
             entity_conf_threshold=self.hparams.entity_conf_threshold,
-            use_plm=self.hparams.use_plm,
             valid_time_split=self.hparams.valid_time_split,
             train=True,
             validation=False,
             download=True,
             sentiment_annotator=self.hparams.sentiment_annotator,
         )
-
-        # Similar changes for validation and test set initializations
 
     def setup(self, stage: Optional[str] = None):
         """Load data. Set variables: `self.data_train`, `self.data_val`, `self.data_test`.
