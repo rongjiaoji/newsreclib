@@ -1,6 +1,7 @@
 defaults:
   - mind_rec.yaml
 
+# Make sure no GloVe parameters are being re-added here
 sentiment_annotator:
   _target_: newsreclib.data.components.sentiment_annotator.BERTSentimentAnnotator
   model_name: "cardiffnlp/twitter-xlm-roberta-base-sentiment"
@@ -56,3 +57,5 @@ batch_size: 64
 num_workers: 0
 pin_memory: true
 drop_last: false
+
+# Only override specific parameters, don't re-add removed ones
